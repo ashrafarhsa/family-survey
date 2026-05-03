@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0069)file:///C:/Users/Ashraf/Downloads/Family_Vacation_Survey_Final_5.html -->
+<!-- saved from url=(0069)file:///C:/Users/Ashraf/Downloads/Family_Vacation_Survey_Final_7.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -94,12 +94,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
 .status-title{font-weight:500;margin-bottom:4px;}
 
 /* SETUP BANNER */
-.setup-banner{background:#fff8e6;border:1.5px solid var(--gold);border-radius:var(--r);padding:16px 20px;margin:20px 24px 0;max-width:672px;margin-left:auto;margin-right:auto;}
-.setup-banner h3{font-size:14px;font-weight:500;color:var(--deep);margin-bottom:8px;}
-.setup-banner p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
-.setup-input{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-family:monospace;font-size:12px;color:var(--ink);background:var(--card-bg);outline:none;}
-.setup-input:focus{border-color:var(--gold);}
-.btn-save-url{margin-top:8px;padding:8px 20px;border-radius:999px;background:var(--deep);color:var(--gold);border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;}
+.settings-box{background:var(--warm);border:1.5px solid var(--border);border-radius:var(--r);padding:16px 20px;margin-top:12px;}
+.settings-box h3{font-size:13px;font-weight:500;color:var(--deep);margin-bottom:6px;}
+.settings-box p{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;}
+.settings-input{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-family:monospace;font-size:11.5px;color:var(--ink);background:var(--card-bg);outline:none;transition:border-color .2s;}
+.settings-input:focus{border-color:var(--gold);}
+.btn-save-url{margin-top:8px;padding:7px 18px;border-radius:999px;background:var(--deep);color:var(--gold);border:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;}
+.url-saved{display:none;font-size:12px;color:var(--green);margin-top:6px;font-weight:500;}
 
 /* COMPLETION PANEL */
 .completion-panel{display:none;background:var(--deep);border-radius:var(--r);padding:32px 24px;text-align:center;margin-top:32px;}
@@ -153,14 +154,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
 </head>
 <body>
 
-<!-- SETUP BANNER (hidden once URL is saved) -->
-<div class="setup-banner" id="setupBanner" style="display: none;">
-  <h3>One-time setup: paste your Google Apps Script URL</h3>
-  <p>You created a Web App URL when you deployed the Apps Script. Paste it below. It will be saved in this file's memory so your family never needs to see it.</p>
-  <input class="setup-input" id="scriptUrlInput" type="url" placeholder="https://script.google.com/macros/s/…/exec">
-  <br>
-  <button class="btn-save-url" onclick="saveScriptUrl()">Save &amp; hide this banner</button>
-</div>
+
 
 <!-- HERO -->
 <div class="hero">
@@ -379,6 +373,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
 </div>
 
 <!-- COMPLETION -->
+
+<div class="settings-box">
+  <h3>⚙️ Google Sheets connection</h3>
+  <p>Paste your Google Apps Script Web App URL below. Saved answers go directly to your Sheet.</p>
+  <input class="settings-input" id="scriptUrlInput" type="url" placeholder="https://script.google.com/macros/s/…/exec">
+  <br>
+  <button class="btn-save-url" onclick="saveScriptUrl()">Save URL</button>
+  <div class="url-saved" id="urlSaved" style="display: block;">✓ URL saved — answers will sync to Google Sheets</div>
+</div>
 <div class="completion-panel" id="completionPanel">
   <h2>All 6 responses received</h2>
   <p>Every family member has submitted. Open your Google Sheet to download the results as a CSV, then upload it to Claude for destination recommendations.</p>
@@ -404,16 +407,20 @@ try{
 function save(){try{localStorage.setItem('fsurv2',JSON.stringify(all));localStorage.setItem('fsynced',JSON.stringify(synced));}catch(e){}}
 function ga(p){if(!all[p])all[p]={};return all[p];}
 
-// Setup banner
-if(SCRIPT_URL){document.getElementById('setupBanner').style.display='none';}
-else{document.getElementById('scriptUrlInput').value='';}
+// Pre-fill URL input if already saved
+if(SCRIPT_URL){
+  document.getElementById('scriptUrlInput').value=SCRIPT_URL;
+  document.getElementById('urlSaved').style.display='block';
+}
 
 function saveScriptUrl(){
   const url=document.getElementById('scriptUrlInput').value.trim();
-  if(!url||!url.includes('script.google.com')){alert('Please paste a valid Google Apps Script URL');return;}
+  if(!url||!url.includes('script.google.com')){alert('Please paste a valid Google Apps Script URL — it should start with https://script.google.com/macros/s/');return;}
   SCRIPT_URL=url;
   localStorage.setItem('fscript_url',url);
-  document.getElementById('setupBanner').style.display='none';
+  const saved=document.getElementById('urlSaved');
+  saved.style.display='block';
+  saved.textContent='✓ URL saved — answers will sync to Google Sheets';
 }
 
 function upd(){
